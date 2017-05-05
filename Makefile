@@ -1,5 +1,5 @@
 CXXFLAGS     =	-O2 -g -Wall -Werror -fmessage-length=0
-LIBS         = -lsqlite3
+LIBS         =
 
 BUILD_FOLDER := ./build/
 
