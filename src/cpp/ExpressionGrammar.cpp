@@ -26,6 +26,7 @@ using spirit::lit;
 using spirit::_1;
 using spirit::uint_;
 using spirit::as_string;
+using spirit::lexeme;
 using spirit::qi::no_case;
 using spirit::qi::digit;
 using spirit::qi::hex;
@@ -63,65 +64,75 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 		;
 
 	_number_value
-		=	no_case [lit("0x")]
-			>>	+hex
-		|	-(	lit('+')
-			| 	lit('-')
-			)
-			>>	(	(	+digit
-						>>	-(	lit('.')
-								>>	*digit
-							)
+		=	lexeme[
+				no_case [lit("0x")]
+				>>	+hex
+			|	-(	lit('+')
+				| 	lit('-')
+				)
+				>>	(	(	+digit
+							>>	-(	lit('.')
+									>>	*digit
+								)
+						)
+					|	(	lit('.')
+							>>	+digit
+						)
 					)
-				|	(	lit('.')
+				>>	-(	no_case [lit('E')]
+						>>	-(	lit('+')
+							|	lit('-')
+							)
 						>>	+digit
 					)
-				)
-			>>	-(	no_case [lit('E')]
-					>>	-(	lit('+')
-						|	lit('-')
-						)
-					>>	+digit
-				)
+			]
 		;
 
 	_string_value
-		=	lit('\'')
-			>>	*(	(	char_ - char_('\'')
+		=	lexeme[
+				lit('\'')
+				>>	*(	(	char_ - char_('\'')
+						)
+					^	lit("\'\'")
 					)
-				^	lit("\'\'")
-				)
-			>> lit('\'')
+				>> lit('\'')
+			]
 		;
 
 	_blob_value
-		=	no_case[
-				lit('x')
-				>> 	lit('\'')
-				>> 	*(	digit
-					^ 	hex
-					)
-				>> 	lit('\'')
+		=	lexeme[
+				no_case[
+					lit('x')
+					>> 	lit('\'')
+					>> 	*(	digit
+						^ 	hex
+						)
+					>> 	lit('\'')
+				]
 			]
 		;
 
 	_bind_parameter
-		=	lit("?")
-			>>	*uint_
-		|	(	lit(":")
-				|	lit("@")
-				|	lit("$")
-			)
-			>>	+alnum
+		=	lexeme[
+				lit("?")
+				>>	*uint_
+			|	(	lit(":")
+					|	lit("@")
+					|	lit("$")
+				)
+				>>	+alnum
+			]
 		;
 
 	_name
-		=	+(	alpha
-			^	lit("_")
-			)
-			>>	*(	alnum
+		=	lexeme[
+				+(	alpha
 				^	lit("_")
 				)
+				>>	*(	alnum
+					^	lit("_")
+					)
+			]
 		;
 
 	_full_name
@@ -135,10 +146,12 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 		;
 
 	_unary_operator
-		=	lit('+')
-		|	lit('-')
-		|	lit('~')
-		|	no_case[lit("NOT")]
+		=	lexeme[
+				lit('+')
+			|	lit('-')
+			|	lit('~')
+			|	no_case[lit("NOT")]
+			]
 		;
 
 	_binary_oprator
@@ -171,6 +184,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 				| 	lit('>')
 				| 	lit('=')
 			]
+
 		;
 
 	BOOST_SPIRIT_DEBUG_NODE(_all);

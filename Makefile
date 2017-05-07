@@ -88,7 +88,7 @@ pre_do_test:
 do_test:
 	@cd $(BUILD_FOLDER)/test/ && \
 		./unit_test --gtest_color=yes --gtest_output=xml \
-		--gtest_filter=ExpressionGrammarTest._all \
+		--gtest_filter=* \
 		| tee unit_test.stdout
 
 post_do_test:

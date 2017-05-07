@@ -8,6 +8,7 @@
 #include "ExpressionGrammar.hpp"
 
 #include <vector>
+#include <functional>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -33,7 +34,7 @@ MATCHER(isValid, std::string(negation ? "dose not" : "dose") + " match grammar")
 	auto begin = sql.begin();
 	auto end = sql.end();
 
-	ExpressionGrammar grammar;
+	static ExpressionGrammar grammar;
 
 	bool match = phrase_parse(begin, end, grammar, ::boost::spirit::ascii::space);
 
@@ -294,10 +295,6 @@ TEST_F(ExpressionGrammarTest, _all){
 		ASSERT_THAT(s, isValid()) << passCount << "/" << (int)testCase.size();
 		passCount++;
 	}
-
-//	EXPECT_THAT("@123abc REGEXP 111.", isValid());
-//	EXPECT_THAT("@123abc AND 111.", isValid());
-//	EXPECT_THAT("@123abc + 111.", isValid());
 }
 
 
