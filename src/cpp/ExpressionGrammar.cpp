@@ -41,7 +41,6 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 	_expression
 		=	(	_unary_operator
 				>>	_expression
-			|	_cast
 			|	_aggregate_function
 			|	lit("(")
 				>>	_expression
@@ -49,7 +48,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 						>>	_expression
 					)
 				>>	lit(")")
-//			|	_cast
+			|	_cast
 			|	_literal_value
 			|	_bind_parameter
 			|	_full_name
