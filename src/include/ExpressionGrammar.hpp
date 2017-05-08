@@ -22,8 +22,7 @@ public:
 
 private:
 	boost::spirit::qi::rule<std::string::const_iterator, boost::spirit::ascii::space_type>
-		_all
-		, _expression
+		_expression
 		, _literal_value
 		, _number_value
 		, _string_value
@@ -36,6 +35,7 @@ private:
 		, _aggregate_function
 		, _aggregate_function_name
 		, _type_name
+		, _cast
 		;
 };
 

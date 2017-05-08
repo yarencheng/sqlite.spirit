@@ -36,29 +36,36 @@ using spirit::qi::alpha;
 using phoenix::push_back;
 
 
-ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
-
-	_all
-		= 	_unary_operator
-			>> _all
-		|	_aggregate_function
-		|	_expression
-			>>	*(	_binary_oprator
-					>>	_all
-				)
-		|	_expression
-			>>	lit("ISNULL")
-		|	_expression
-		;
-
+ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression){
 
 	_expression
-		=	lit("(")
-			>>	_all
+		=	(	_unary_operator
+				>>	_expression
+			|	_aggregate_function
+			|	lit("(")
+				>>	_expression
+				>>	*(	lit(",")
+						>>	_expression
+					)
+				>>	lit(")")
+			|	_cast
+			|	_literal_value
+			|	_bind_parameter
+			|	_full_name
+			)
+			>>	*(
+					_binary_oprator
+					>>	_expression
+				)
+		;
+
+	_cast
+		=	no_case[lit("CAST")]
+			>>	lit("(")
+			>>	_expression
+			>>	no_case[lit("AS")]
+			>>	_type_name
 			>>	lit(")")
-		|	_literal_value
-		|	_bind_parameter
-		|	_full_name
 		;
 
 	_literal_value
@@ -196,9 +203,9 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 			>>	lit("(")
 			>>	-(
 					-no_case[lit("DISTINCT")]
-					>>	_all
+					>>	_expression
 					>>	*(	lit(",")
-							>>	_all
+							>>	_expression
 						)
 				|	lit("*")
 				)
@@ -262,7 +269,6 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 			]
 		;
 
-	BOOST_SPIRIT_DEBUG_NODE(_all);
 	BOOST_SPIRIT_DEBUG_NODE(_expression);
 	BOOST_SPIRIT_DEBUG_NODE(_number_value);
 	BOOST_SPIRIT_DEBUG_NODE(_string_value);
@@ -276,7 +282,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 	BOOST_SPIRIT_DEBUG_NODE(_aggregate_function);
 	BOOST_SPIRIT_DEBUG_NODE(_aggregate_function_name);
 	BOOST_SPIRIT_DEBUG_NODE(_type_name);
-
+	BOOST_SPIRIT_DEBUG_NODE(_cast);
 }
 
 
