@@ -49,10 +49,9 @@ protected:
 
 	virtual void TearDown() {
 	}
-//};
 
 	int testRecursiveMax = 3;
-	int testDataLimit = 100; // -1 is no limit
+	int testDataLimit = 200; // -1 is no limit
 
 	vector<string> numberValues = {
 		"1234567890",
@@ -400,8 +399,8 @@ TEST_F(ExpressionGrammarTest, _full_name){
 	}
 }
 
-TEST_F(ExpressionGrammarTest, _expression){
-	auto testCase = expressions(testRecursiveMax);
+TEST_F(ExpressionGrammarTest, _aggregate_function){
+	auto testCase = aggregateFunctions(testRecursiveMax);
 	int passCount = 0;
 	for (string& s: testCase) {
 		ASSERT_THAT(s, isValid()) << passCount << "/" << (int)testCase.size();
@@ -409,12 +408,15 @@ TEST_F(ExpressionGrammarTest, _expression){
 	}
 }
 
-TEST_F(ExpressionGrammarTest, _aggregate_function){
-	auto testCase = aggregateFunctions(testRecursiveMax);
+TEST_F(ExpressionGrammarTest, _expression){
+	auto testCase = expressions(testRecursiveMax);
 	int passCount = 0;
 	for (string& s: testCase) {
 		ASSERT_THAT(s, isValid()) << passCount << "/" << (int)testCase.size();
 		passCount++;
+		if (passCount % 100000 == 0) {
+			cout << ((double)passCount * 100 / testCase.size()) << "%" << endl;
+		}
 	}
 }
 
