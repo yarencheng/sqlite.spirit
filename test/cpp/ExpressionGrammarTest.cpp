@@ -50,8 +50,8 @@ protected:
 	virtual void TearDown() {
 	}
 
-	int testRecursiveMax = 3;
-	int testDataLimit = 200; // -1 is no limit
+	int testRecursiveMax = 2;
+	int testDataLimit = 1000; // -1 is no limit
 
 	vector<string> numberValues = {
 		"1234567890",
@@ -180,6 +180,17 @@ protected:
 		"BINARY",
 		"NOCASE",
 		"RTRIM",
+	};
+
+	vector<string> stringOperators = {
+		"LIKE",
+		"GLOB",
+		"REGEXP",
+		"MATCH",
+		"NOT LIKE",
+		"NOT GLOB",
+		"NOT REGEXP",
+		"NOT MATCH",
 	};
 
 	vector<string> randomAndTrimVector(const vector<string>& v){
@@ -314,6 +325,23 @@ protected:
 		for (string& s1: expressions(level-1)) {
 			for (string& s2: collationNames) {
 				results.push_back(s1 + " COLLATE " + s2);
+			}
+		}
+
+		for (string& s1: expressions(level-1)) {
+			for (string& s2: stringOperators) {
+				for (string& s3: expressions(level-1)) {
+					results.push_back(s1 + " " + s2 + " " + s3);
+					for (string& s4: expressions(level-1)) {
+						results.push_back(s1 + " " + s2 + " " + s3 + " ESCAPE " + s4);
+					}
+				}
+			}
+		}
+
+		for (string& s1: expressions(level-1)) {
+			for (string& s2: vector<string>({"ISNULL", "NOTNULL", "NOT NULL"})) {
+				results.push_back(s1 + " " + s2);
 			}
 		}
 

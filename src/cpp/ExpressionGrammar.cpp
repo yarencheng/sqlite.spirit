@@ -54,6 +54,21 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 			|	_full_name
 			)
 			>>	(	_collate
+				|	-no_case[lit("NOT")]
+					>>	(	no_case[lit("LIKE")]
+						|	no_case[lit("GLOB")]
+						|	no_case[lit("REGEXP")]
+						|	no_case[lit("MATCH")]
+						)
+					>>	_expression
+					>>	-(	no_case[lit("ESCAPE")]
+							>>	_expression
+						)
+				|	(	no_case[lit("ISNULL")]
+					|	no_case[lit("NOTNULL")]
+					|	no_case[lit("NOT")]
+						>>	no_case[lit("NULL")]
+					)
 				|	*(	_binary_oprator
 						>>	_expression
 					)
