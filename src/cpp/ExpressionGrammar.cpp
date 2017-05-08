@@ -53,7 +53,10 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 
 
 	_expression
-		=	_literal_value
+		=	lit("(")
+			>>	_all
+			>>	lit(")")
+		|	_literal_value
 		|	_bind_parameter
 		|	_full_name
 		;

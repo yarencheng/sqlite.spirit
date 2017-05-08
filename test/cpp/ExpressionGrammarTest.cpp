@@ -32,7 +32,7 @@ protected:
 	}
 };
 
-bool isHeavyTest = false;
+int testDataLimit = 100; // -1 is no limit
 
 MATCHER(isValid, std::string(negation ? "dose not" : "dose") + " match grammar") {
 	const string sql = arg;
@@ -147,11 +147,11 @@ vector<string> aggregateFunctionNames = {
 };
 
 auto randomAndTrimVector = [](const vector<string>& v){
-	if (isHeavyTest) {
+	if (-1 == testDataLimit) {
 		return v;
 	}
 
-	if (10 >= v.size()) {
+	if (testDataLimit >= (int)v.size()) {
 		return v;
 	}
 
@@ -162,7 +162,7 @@ auto randomAndTrimVector = [](const vector<string>& v){
 
 	shuffle(out.begin(), out.end(), g);
 
-	out.resize(10);
+	out.resize(testDataLimit);
 
 	return out;
 };
@@ -228,29 +228,33 @@ auto expressions = []{
 		results.push_back(s1);
 	}
 
-//	for (string& s1: literalValues()) {
-//		results.push_back(string("(") + s1 + ")");
-//	};
+	for (string& s1: literalValues()) {
+		results.push_back(string("(") + s1 + ")");
+	};
 
-//	for (string& s1: bindParameters) {
-//		results.push_back(string("(") + s1 + ")");
-//	}
+	for (string& s1: bindParameters) {
+		results.push_back(string("(") + s1 + ")");
+	}
 
-//	for (string& s1: fullNames()) {
-//		results.push_back(string("(") + s1 + ")");
-//	}
+	for (string& s1: fullNames()) {
+		results.push_back(string("(") + s1 + ")");
+	}
 
-//	for (string& s1: fullNames()) {
-//		for (string& s2: bindParameters) {
-//			results.push_back(string("(") + s1 + "," + s2 + ")");
-//		}
-//	}
+	for (string& s1: fullNames()) {
+		for (string& s2: binarayOperators) {
+			for (string& s3: bindParameters) {
+				results.push_back(string("(") + s1 + " " + s2 + " " + s3 + ")");
+			}
+		}
+	}
 
-//	for (string& s1: fullNames()) {
-//		for (string& s2: literalValues()) {
-//			results.push_back(string("(") + s1 + "," + s2 + ")");
-//		};
-//	}
+	for (string& s1: fullNames()) {
+		for (string& s2: binarayOperators) {
+			for (string& s3: literalValues()) {
+				results.push_back(string("(") + s1 + " " + s2 + " " + s3 + ")");
+			}
+		}
+	}
 
 	results = randomAndTrimVector(results);
 
