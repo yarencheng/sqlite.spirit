@@ -177,6 +177,12 @@ protected:
 		"DATETIME"
 	};
 
+	vector<string> collationNames = {
+		"BINARY",
+		"NOCASE",
+		"RTRIM",
+	};
+
 	vector<string> randomAndTrimVector(const vector<string>& v){
 		if (-1 == testDataLimit) {
 			return v;
@@ -303,6 +309,12 @@ protected:
 		for (string& s1: expressions(level-1)) {
 			for (string& s2: typeNames) {
 				results.push_back("CAST (" + s1 + " AS " + s2 + ")");
+			}
+		}
+
+		for (string& s1: expressions(level-1)) {
+			for (string& s2: collationNames) {
+				results.push_back(s1 + " COLLATE " + s2);
 			}
 		}
 

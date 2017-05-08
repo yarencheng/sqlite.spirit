@@ -41,7 +41,6 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 	_expression
 		=	(	_unary_operator
 				>>	_expression
-			|	_cast
 			|	_aggregate_function
 			|	lit("(")
 				>>	_expression
@@ -49,14 +48,23 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 						>>	_expression
 					)
 				>>	lit(")")
-//			|	_cast
+			|	_cast
 			|	_literal_value
 			|	_bind_parameter
 			|	_full_name
 			)
-			>>	*(
-					_binary_oprator
-					>>	_expression
+			>>	(	_collate
+				|	*(	_binary_oprator
+						>>	_expression
+					)
+				)
+		;
+
+	_collate
+		=	no_case[lit("COLLATE")]
+			>>	(	no_case[lit("BINARY")]
+				|	no_case[lit("NOCASE")]
+				|	no_case[lit("RTRIM")]
 				)
 		;
 
@@ -283,6 +291,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 	BOOST_SPIRIT_DEBUG_NODE(_aggregate_function_name);
 	BOOST_SPIRIT_DEBUG_NODE(_type_name);
 	BOOST_SPIRIT_DEBUG_NODE(_cast);
+	BOOST_SPIRIT_DEBUG_NODE(_collate);
 }
 
 

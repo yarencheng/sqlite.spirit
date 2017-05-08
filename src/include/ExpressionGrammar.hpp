@@ -36,6 +36,7 @@ private:
 		, _aggregate_function_name
 		, _type_name
 		, _cast
+		, _collate
 		;
 };
 
