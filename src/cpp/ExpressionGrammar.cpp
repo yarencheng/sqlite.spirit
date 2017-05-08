@@ -41,6 +41,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 	_expression
 		=	(	_unary_operator
 				>>	_expression
+			|	_cast
 			|	_aggregate_function
 			|	lit("(")
 				>>	_expression
@@ -48,7 +49,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 						>>	_expression
 					)
 				>>	lit(")")
-			|	_cast
+//			|	_cast
 			|	_literal_value
 			|	_bind_parameter
 			|	_full_name
@@ -227,9 +228,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 	_type_name
 		=	no_case[
 				lit("UNSIGNED")
-				>>	+lit(" ")
 				>>	lit("BIG")
-				>>	+lit(" ")
 				>>	lit("INT")
 			|	lit("DOUBLE")
 				>>	-lit("PRECISION")
@@ -263,6 +262,7 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_expression
 			|	lit("INT8")
 			|	lit("TEXT")
 			|	lit("BLOB")
+			|	lit("CLOB")
 			|	lit("REAL")
 			|	lit("DATE")
 			|	lit("INT")
