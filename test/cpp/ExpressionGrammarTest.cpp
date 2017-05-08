@@ -228,9 +228,9 @@ auto expressions = []{
 		results.push_back(s1);
 	}
 
-//	for (string& s1: literalValues()) {
-//		results.push_back(string("(") + s1 + ")");
-//	};
+	for (string& s1: literalValues()) {
+		results.push_back(string("(") + s1 + ")");
+	};
 
 //	for (string& s1: bindParameters) {
 //		results.push_back(string("(") + s1 + ")");
