@@ -256,6 +256,12 @@ auto expressions = []{
 		}
 	}
 
+	for (string& s1: unaryOperators) {
+		for (string& s2: literalValues()) {
+			results.push_back(s1 + " " + s2);
+		};
+	}
+
 	results = randomAndTrimVector(results);
 
 	return results;
