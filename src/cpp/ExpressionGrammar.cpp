@@ -39,11 +39,13 @@ using phoenix::push_back;
 ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 
 	_all
-		= 	_expression
-			>>	_binary_oprator
-			>>	_expression
-		|	_unary_operator
-			>> _expression
+		= 	_unary_operator
+			>> _all
+		|	_aggregate_function
+		|	_expression
+			>>	*(	_binary_oprator
+					>>	_all
+				)
 		|	_expression
 			>>	lit("ISNULL")
 		|	_expression
@@ -184,7 +186,77 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 				| 	lit('>')
 				| 	lit('=')
 			]
+		;
 
+	_aggregate_function
+		=	_aggregate_function_name
+			>>	lit("(")
+			>>	-(
+					-no_case[lit("DISTINCT")]
+					>>	_all
+					>>	*(	lit(",")
+							>>	_all
+						)
+				|	lit("*")
+				)
+			>>	lit(")")
+		;
+
+	_aggregate_function_name
+		=	no_case[
+				lit("AVG")
+			|	lit("COUNT")
+			|	lit("GROUP_CONCAT")
+			|	lit("MAX")
+			|	lit("MIN")
+			|	lit("SUM")
+			|	lit("TOTAL")
+			]
+		;
+
+	_type_name
+		=	no_case[
+				lit("UNSIGNED")
+				>>	+lit(" ")
+				>>	lit("BIG")
+				>>	+lit(" ")
+				>>	lit("INT")
+			|	lit("DOUBLE")
+				>>	-lit("PRECISION")
+			|	(	-(	lit("VARYING")
+					|	lit("NATIVE ")
+					)
+					>>	lit("CHARACTER")
+				|	lit("NVARCHAR")
+				|	lit("VARCHAR")
+				|	lit("NCHAR")
+				)
+				>>	lit("(")
+				>>	+digit
+				>>	lit(")")
+			|	lit("DECIMAL")
+				>>	lit("(")
+				>>	+digit
+				>>	lit(",")
+				>>	+digit
+				>>	lit(")")
+			|	lit("MEDIUMINT")
+			|	lit("SMALLINT")
+			|	lit("DATETIME")
+			|	lit("INTEGER")
+			|	lit("TINYINT")
+			|	lit("NUMERIC")
+			|	lit("BOOLEAN")
+			|	lit("BIGINT")
+			|	lit("FLOAT")
+			|	lit("INT2")
+			|	lit("INT8")
+			|	lit("TEXT")
+			|	lit("BLOB")
+			|	lit("REAL")
+			|	lit("DATE")
+			|	lit("INT")
+			]
 		;
 
 	BOOST_SPIRIT_DEBUG_NODE(_all);
@@ -198,7 +270,9 @@ ExpressionGrammar::ExpressionGrammar(): ExpressionGrammar::base_type(_all){
 	BOOST_SPIRIT_DEBUG_NODE(_full_name);
 	BOOST_SPIRIT_DEBUG_NODE(_unary_operator);
 	BOOST_SPIRIT_DEBUG_NODE(_binary_oprator);
-
+	BOOST_SPIRIT_DEBUG_NODE(_aggregate_function);
+	BOOST_SPIRIT_DEBUG_NODE(_aggregate_function_name);
+	BOOST_SPIRIT_DEBUG_NODE(_type_name);
 
 }
 

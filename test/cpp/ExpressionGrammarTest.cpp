@@ -9,6 +9,10 @@
 
 #include <vector>
 #include <functional>
+#include <random>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -27,6 +31,8 @@ protected:
 	virtual void TearDown() {
 	}
 };
+
+bool isHeavyTest = false;
 
 MATCHER(isValid, std::string(negation ? "dose not" : "dose") + " match grammar") {
 	const string sql = arg;
@@ -130,6 +136,37 @@ vector<string> binarayOperators = {
 	"=",
 };
 
+vector<string> aggregateFunctionNames = {
+	"AVG",
+	"COUNT",
+	"GROUP_CONCAT",
+	"MAX",
+	"MIN",
+	"SUM",
+	"TOTAL"
+};
+
+auto randomAndTrimVector = [](const vector<string>& v){
+	if (isHeavyTest) {
+		return v;
+	}
+
+	if (10 >= v.size()) {
+		return v;
+	}
+
+	random_device rd;
+	mt19937 g(rd());
+
+	vector<string> out = v;
+
+	shuffle(out.begin(), out.end(), g);
+
+	out.resize(10);
+
+	return out;
+};
+
 auto fullNames = []{
 	static vector<string> results;
 
@@ -144,6 +181,8 @@ auto fullNames = []{
 			}
 		}
 	}
+
+	results = randomAndTrimVector(results);
 
 	return results;
 };
@@ -167,6 +206,8 @@ auto literalValues = []{
 
 	results.push_back("NULL");
 
+	results = randomAndTrimVector(results);
+
 	return results;
 };
 
@@ -187,6 +228,57 @@ auto expressions = []{
 		results.push_back(s1);
 	}
 
+//	for (string& s1: literalValues()) {
+//		results.push_back(string("(") + s1 + ")");
+//	};
+
+//	for (string& s1: bindParameters) {
+//		results.push_back(string("(") + s1 + ")");
+//	}
+
+//	for (string& s1: fullNames()) {
+//		results.push_back(string("(") + s1 + ")");
+//	}
+
+//	for (string& s1: fullNames()) {
+//		for (string& s2: bindParameters) {
+//			results.push_back(string("(") + s1 + "," + s2 + ")");
+//		}
+//	}
+
+//	for (string& s1: fullNames()) {
+//		for (string& s2: literalValues()) {
+//			results.push_back(string("(") + s1 + "," + s2 + ")");
+//		};
+//	}
+
+	results = randomAndTrimVector(results);
+
+	return results;
+};
+
+auto aggregateFunctions = []{
+	static vector<string> results;
+
+	if (!results.empty()) return results;
+
+	for (string& s1: aggregateFunctionNames) {
+
+		results.push_back(s1 + "()");
+		results.push_back(s1 + "(*)");
+
+		for (string& s2: expressions()) {
+			results.push_back(s1 + "(" + s2 + ")");
+			results.push_back(s1 + "( DISTINCT " + s2 + ")");
+			for (string& s3: expressions()) {
+				results.push_back(s1 + "(" + s2 + ", " + s3 + ")");
+				results.push_back(s1 + "( DISTINCT " + s2 + ", " + s3 + ")");
+			};
+		};
+	}
+
+	results = randomAndTrimVector(results);
+
 	return results;
 };
 
@@ -195,23 +287,29 @@ auto all = []{
 
 	if (!results.empty()) return results;
 
-	for (string& s1: expressions()) {
-		results.push_back(s1);
-	}
-
 	for (string& s1: unaryOperators) {
 		for (string& s2: expressions()) {
 			results.push_back(s1 + " " + s2);
-		}
+		};
 	}
+
+	for (string& s1: aggregateFunctions()) {
+		results.push_back(s1);
+	};
 
 	for (string& s1: expressions()) {
 		for (string& s2: binarayOperators) {
 			for (string& s3: expressions()) {
 				results.push_back(s1 + " " + s2 + " " + s3);
-			}
+			};
 		}
-	}
+	};
+
+	for (string& s1: expressions()) {
+		results.push_back(s1);
+	};
+
+	results = randomAndTrimVector(results);
 
 	return results;
 };
@@ -288,6 +386,15 @@ TEST_F(ExpressionGrammarTest, _expression){
 	}
 }
 
+TEST_F(ExpressionGrammarTest, _aggregate_function){
+	auto testCase = aggregateFunctions();
+	int passCount = 0;
+	for (string& s: testCase) {
+		ASSERT_THAT(s, isValid()) << passCount << "/" << (int)testCase.size();
+		passCount++;
+	}
+}
+
 TEST_F(ExpressionGrammarTest, _all){
 	auto testCase = all();
 	int passCount = 0;
@@ -296,7 +403,6 @@ TEST_F(ExpressionGrammarTest, _all){
 		passCount++;
 	}
 }
-
 
 
 }}}}

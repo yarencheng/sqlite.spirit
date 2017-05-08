@@ -33,6 +33,9 @@ private:
 		, _full_name
 		, _unary_operator
 		, _binary_oprator
+		, _aggregate_function
+		, _aggregate_function_name
+		, _type_name
 		;
 };
 
