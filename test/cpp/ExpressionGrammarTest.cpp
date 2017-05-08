@@ -155,8 +155,8 @@ auto randomAndTrimVector = [](const vector<string>& v){
 		return v;
 	}
 
-	random_device rd;
-	mt19937 g(rd());
+	static random_device rd;
+	static mt19937 g(rd());
 
 	vector<string> out = v;
 
